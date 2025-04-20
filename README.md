@@ -40,7 +40,10 @@ CartPole 환경의 목표는 카트를 좌우로 움직여 카트 위에 붙어�
 - **Q-테이블 기반 학습**
    - 상태 버킷과 행동(좌/우 이동)을 차원으로 가지는 Q-테이블을 생성하고 0으로 초기화했습니다.
    - 에이전트가 환경과 상호작용하며 얻는 경험(상태, 행동, 보상, 다음 상태)을 바탕으로 Q-러닝 업데이트 공식을 사용하여 Q-테이블의 값을 반복적으로 갱신했습니다.
-     $$ Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \right] $$
+
+     $$ 
+     Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \right] 
+     $$
 
 - **행동 선택 정책 (Epsilon-Greedy)**
    - 학습 중 탐험(Exploration)과 활용(Exploitation)의 균형을 맞추기 위해 엡실론-그리디(Epsilon-Greedy) 정책을 사용했습니다.
@@ -70,16 +73,16 @@ REINFORCE는 에피소드 전체를 경험한 후, 각 타임스텝에서 얻은
 
 ### 구현 내용
 - **정책 신경망 (Policy Network)**
-   - `torch.nn.Module`을 사용하여 상태를 입력받아 행동 확률 분포를 출력하는 신경망을 정의했습니다. 이 신경망은 에이전트의 정책 $ \pi_\theta(a|s) $를 근사합니다.
+   - `torch.nn.Module`을 사용하여 상태를 입력받아 행동 확률 분포를 출력하는 신경망을 정의했습니다. 이 신경망은 에이전트의 정책 $\pi_\theta(a|s)$를 근사합니다.
    - Softmax 활성화 함수를 사용하여 출력값이 행동 확률 분포를 나타내도록 했습니다.
 
 - **Monte-Carlo 기반 학습**
    - 에이전트는 현재 정책에 따라 에피소드를 끝까지 실행하여 상태, 행동, 보상의 궤적(trajectory)을 생성합니다.
-   - 에피소드가 종료된 후, 각 타임스텝 $ t $에서의 할인된 누적 보상 $ G_t = \sum_{k=t}^{T} \gamma^{k-t} R_k $를 계산합니다. 보상 정규화를 통해 학습 안정성을 높였습니다.
+   - 에피소드가 종료된 후, 각 타임스텝 $t$에서의 할인된 누적 보상 $G_t = \sum_{k=t}^{T} \gamma^{k-t} R_k$를 계산합니다. 보상 정규화를 통해 학습 안정성을 높였습니다.
 
 - **정책 경사 업데이트 (Policy Gradient Update)**
-   - 계산된 $ G_t $와 행동의 로그 확률 $ \log \pi_\theta(a_t|s_t) $를 사용하여 정책 경사를 추정하고, 이를 통해 정책 신경망의 파라미터 $ \theta $를 업데이트합니다.
-   - 목표 함수 $ J(\theta) $를 최대화하기 위해 경사 상승법(Gradient Ascent)을 사용합니다. 코드에서는 일반적으로 손실 함수 $ L(\theta) = -\sum_t G_t \log \pi_\theta(a_t|s_t) $ 를 정의하고 경사 하강법(Gradient Descent)을 적용하여 구현합니다.
+   - 계산된 $G_t$와 행동의 로그 확률 $\log \pi_\theta(a_t|s_t)$를 사용하여 정책 경사를 추정하고, 이를 통해 정책 신경망의 파라미터 $\theta$를 업데이트합니다.
+   - 목표 함수 $J(\theta)$를 최대화하기 위해 경사 상승법(Gradient Ascent)을 사용합니다. 코드에서는 일반적으로 손실 함수 $L(\theta) = -\sum_t G_t \log \pi_\theta(a_t|s_t)$ 를 정의하고 경사 하강법(Gradient Descent)을 적용하여 구현합니다.
    - `torch.optim.Adam` 옵티마이저를 사용하여 파라미터를 업데이트했습니다.
 
 - **학습 결과 시각화**
